@@ -1,0 +1,33 @@
+import tkinter as tk
+
+fields = 'Last Name', 'First Name', 'Job', 'Country'                                    #   Definimos los campos   
+
+
+def fetch(entries):                                                     #   Función para obtener los datos de los campos
+    for entry in entries:                                          #   Recorremos los campos
+        field = entry[0]                                             #   Obtenemos el nombre del campo
+        text  = entry[1].get()                                        #   Obtenemos el valor del campo
+        print('%s: "%s"' % (field, text))                           #   Imprimimos el nombre y el valor del campo
+
+def makeform(root, fields):                                                  #   Función para crear los campos
+    entries = []                                                             #   Lista para almacenar los campos
+    for field in fields:                                                     #   Recorremos los campos
+        row = tk.Frame(root)                                                  #   Creamos un frame el nombre del campo
+        lab = tk.Label(row, width=15, text=field, anchor='w')                #   Creamos una etiqueta con el nombre del campo
+        ent = tk.Entry(row)                                                   #   Creamos un campo de texto
+        row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)                     #   Empaquetamos el frame
+        lab.pack(side=tk.LEFT)                                              #   Empaquetamos la etiqueta                                                       
+        ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)                   #   Empaquetamos el campo de texto
+        entries.append((field, ent))                                        #   Añadimos el campo a la lista
+    return entries                                                          #   Retornamos la lista de campos
+
+if __name__ == '__main__':                                                  #   Función principal
+    root = tk.Tk()                                                          #   Creamos la ventana
+    ents = makeform(root, fields)                                            #   Creamos los campos
+    root.bind('<Return>', (lambda event, e=ents: fetch(e)))                  #   Asignamos la tecla Enter para obtener los datos
+    b1 = tk.Button(root, text='Show',                                        #   Creamos un botón para obtener los datos
+                  command=(lambda e=ents: fetch(e)))                          #   Asignamos la función para obtener los datos
+    b1.pack(side=tk.LEFT, padx=5, pady=5)                                     #   Empaquetamos el botón
+    b2 = tk.Button(root, text='Quit', command=root.quit)                      #   Creamos un botón para salir
+    b2.pack(side=tk.LEFT, padx=5, pady=5)                                      #   Empaquetamos el botón
+    root.mainloop()                                                           #   Iniciamos el bucle principal

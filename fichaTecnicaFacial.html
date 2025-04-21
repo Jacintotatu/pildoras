@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha Técnica Facial</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .center {
+            text-align: center;
+        }
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 10px;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+        }
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+        .submit-button {
+            display: block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="center">FICHA TÉCNICA FACIAL</h1>
+
+    <form id="facialForm">
+        <!-- Datos Generales -->
+        <h2>Datos Generales</h2>
+        <table>
+            <tr>
+                <td><label for="nombre">Nombre del Cliente:</label></td>
+                <td><input type="text" id="nombre" name="nombre" required></td>
+            </tr>
+            <tr>
+                <td><label for="direccion">Dirección:</label></td>
+                <td><input type="text" id="direccion" name="direccion"></td>
+                <td><label for="telefono">Teléfono:</label></td>
+                <td><input type="tel" id="telefono" name="telefono"></td>
+                <td><label for="email">Email:</label></td>
+                <td><input type="email" id="email" name="email"></td>
+            </tr>
+            <tr>
+                <td><label for="fechaNacimiento">Fecha de Nacimiento:</label></td>
+                <td><input type="date" id="fechaNacimiento" name="fechaNacimiento"></td>
+                <td><label for="edad">Edad:</label></td>
+                <td><input type="number" id="edad" name="edad"></td>
+                <td><label for="hijos">Hijos:</label></td>
+                <td><input type="number" id="hijos" name="hijos"></td>
+            </tr>
+            <tr>
+                <td><label for="ocupacion">Ocupación:</label></td>
+                <td colspan="3"><input type="text" id="ocupacion" name="ocupacion"></td>
+                <td><label for="motivoConsulta">Motivo de la consulta:</label></td>
+                <td><input type="text" id="motivoConsulta" name="motivoConsulta"></td>
+            </tr>
+        </table>
+
+        <!-- Datos Clínicos -->
+        <h2>Datos Clínicos</h2>
+        <table>
+            <tr>
+                <th>Diabetes</th>
+                <th>Asma</th>
+                <th>Hipertensión</th>
+                <th>Cáncer</th>
+                <th>Otros</th>
+                <th>Ninguno</th>
+            </tr>
+            <tr>
+                <td><input type="checkbox" id="diabetes" name="diabetes"></td>
+                <td><input type="checkbox" id="asma" name="asma"></td>
+                <td><input type="checkbox" id="hipertension" name="hipertension"></td>
+                <td><input type="checkbox" id="cancer" name="cancer"></td>
+                <td><input type="checkbox" id="otros" name="otros"></td>
+                <td><input type="checkbox" id="ninguno" name="ninguno"></td>
+            </tr>
+        </table>
+        <label for="enfermedadesPasadas">Enfermedades que ha padecido:</label>
+        <textarea id="enfermedadesPasadas" name="enfermedadesPasadas" rows="2"></textarea>
+        <label for="enfermedadesActuales">Enfermedades que padece actualmente:</label>
+        <textarea id="enfermedadesActuales" name="enfermedadesActuales" rows="2"></textarea>
+        <label for="medicamentos">Medicamentos que esté tomando:</label>
+        <textarea id="medicamentos" name="medicamentos" rows="2"></textarea>
+        <label for="planificacion">Método e planificación (mujeres):</label>
+        <input type="text" id="planificacion" name="planificacion">
+
+        <!-- Uso de Prótesis -->
+        <h2>Uso de Prótesis</h2>
+        <div class="checkbox-group">
+            <label><input type="checkbox" id="dentales" name="protesisDentales"> Dentales</label>
+            <label><input type="checkbox" id="lentesContacto" name="lentesContacto"> Lentes de contacto</label>
+            <label><input type="checkbox" id="ningunaProtesis" name="ningunaProtesis"> Ninguno</label>
+        </div>
+
+        <!-- Hábitos Alimenticios y Personales -->
+        <h2>Hábitos Alimenticios y Personales</h2>
+        <table>
+            <tr>
+                <td>Alimentación Adecuada</td>
+                <td><input type="radio" id="alimentacionSi" name="alimentacion" value="si"> Si</td>
+                <td><input type="radio" id="alimentacionNo" name="alimentacion" value="no"> No</td>
+            </tr>
+            <tr>
+                <td>Agua</td>
+                <td><input type="radio" id="aguaSi" name="agua" value="si"> Si</td>
+                <td><input type="radio" id="aguaNo" name="agua" value="no"> No</td>
+            </tr>
+            <tr>
+                <td>Fuma</td>
+                <td><input type="radio" id="fumaSi" name="fuma" value="si"> Si</td>
+                <td><input type="radio" id="fumaNo" name="fuma" value="no"> No</td>
+            </tr>
+            <tr>
+                <td>Alcohol</td>
+                <td><input type="radio" id="alcoholSi" name="alcohol" value="si"> Si</td>
+                <td><input type="radio" id="alcoholNo" name="alcohol" value="no"> No</td>
+            </tr>
+            <tr>
+                <td>Ejercicio:</td>
+                <td colspan="2"><input type="text" id="ejercicio" name="ejercicio"></td>
+            </tr>
+            <tr>
+                <td>Hora de Sueño:</td>
+                <td colspan="2"><input type="time" id="horaSueño" name="horaSueño"></td>
+            </tr>
+        </table>
+
+        <!-- Análisis Estético -->
+        <h2>Análisis Estético</h2>
+        <table>
+            <tr>
+                <td>Color de Piel:</td>
+                <td><input type="text" id="colorPiel" name="colorPiel"></td>
+            </tr>
+            <tr>
+                <td>Tipo de Piel:</td>
+                <td>
+                    <input type="radio" id="pielNormal" name="tipoPiel" value="normal"> Piel normal
+                    <input type="radio" id="pielMixta" name="tipoPiel" value="mixta"> Piel mixta
+                    <input type="radio" id="pielSeca" name="tipoPiel" value="seca"> Piel seca
+                    <input type="radio" id="pielGrasa" name="tipoPiel" value="grasa"> Piel grasa
+                </td>
+            </tr>
+            <tr>
+                <td>Grado de Deshidratación:</td>
+                <td>
+                    <input type="radio" id="deshidratacionLeve" name="deshidratacion" value="leve"> Leve
+                    <input type="radio" id="deshidratacionMedio" name="deshidratacion" value="medio"> Medio
+                    <input type="radio" id="deshidratacionAlto" name="deshidratacion" value="alto"> Alto
+                </td>
+            </tr>
+            <tr>
+                <td>Patologías Cutáneas:</td>
+                <td>
+                    <input type="checkbox" id="ampollas" name="patologiaAmpollas"> Ampollas
+                    <input type="checkbox" id="comedones" name="patologiaComedones"> Comedones
+                    <input type="checkbox" id="cicatrices" name="patologiaCicatrices"> Cicatrices
+                    <input type="checkbox" id="costras" name="patologiaCostras"> Costras
+                    <input type="checkbox" id="verrugas" name="patologiaVerrugas"> Verrugas
+                </td>
+            </tr>
+            <tr>
+                <td>Vitiligo</td>
+                <td><input type="checkbox" id="vitiligo" name="vitiligo"></td>
+            </tr>
+            <tr>
+                <td>Arrugas</td>
+                <td><input type="checkbox" id="arrugas" name="arrugas"></td>
+            </tr>
+        </table>
+
+        <!-- Diagnóstico Final -->
+        <h2>Diagnóstico Final</h2>
+        <table>
+            <tr>
+                <td>Diagnóstico de Piel:</td>
+                <td><input type="text" id="diagnosticoPiel" name="diagnosticoPiel"></td>
+            </tr>
+            <tr>
+                <td>Necesidades Cutáneas:</td>
+                <td><input type="text" id="necesidadesCutaneas" name="necesidadesCutaneas"></td>
+            </tr>
+            <tr>
+                <td>Tratamiento Recomendado:</td>
+                <td><input type="text" id="tratamientoRecomendado" name="tratamientoRecomendado"></td>
+            </tr>
+            <tr>
+                <td>Tiempo de uso del Vaporizador:</td>
+                <td><input type="text" id="tiempoVaporizador" name="tiempoVaporizador"></td>
+            </tr>
+            <tr>
+                <td>Tratamientos Naturales Recomendados:</td>
+                <td><input type="text" id="tratamientosNaturales" name="tratamientosNaturales"></td>
+            </tr>
+            <tr>
+                <td>Tratamientos Químicos Recomendados:</td>
+                <td><input type="text" id="tratamientosQuimicos" name="tratamientosQuimicos"></td>
+            </tr>
+            <tr>
+                <td>Profesional que realizó el servicio:</td>
+                <td><input type="text" id="profesional" name="profesional"></td>
+            </tr>
+            <tr>
+                <td>Fecha:</td>
+                <td><input type="date" id="fecha" name="fecha"></td>
+                <td>Firma del Cliente:</td>
+                <td><input type="text" id="firmaCliente" name="firmaCliente"></td>
+            </tr>
+        </table>
+
+        <!-- Botón de Envío -->
+        <button type="submit" class="submit-button">Guardar Ficha Técnica</button>
+    </form>
+
+    <script>
+        // Función para exportar los datos al formato deseado (CSV o PDF)
+        document.getElementById('facialForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evitar el envío del formulario
+
+            const form = document.getElementById('facialForm');
+            const formData = new FormData(form);
+
+            // Convertir los datos a JSON
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            // Exportar a CSV
+            const csvContent = Object.keys(data).map(key => `${key},${data[key]}`).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'ficha_tecnica_facial.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Exportar a PDF
+            const pdfContent = `
+                <h1>FICHA TÉCNICA FACIAL</h1>
+                <table>
+                    ${Object.entries(data).map(([key, value]) => `<tr><td>${key}</td><td>${value}</td></tr>`).join('')}
+                </table>
+            `;
+            const pdfWindow = window.open('', '_blank');
+            pdfWindow.document.write(pdfContent);
+            pdfWindow.document.close();
+        });
+    </script>
+</body>
+</html>
