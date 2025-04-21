@@ -15,7 +15,7 @@ class Calculadora:
 
                 self.display=Entry(ventana, font="Arial 15")                                                                     # Se crea un cuadro de texto para el display
 
-        #ubicar Display
+        #ubicar Display,
 
                 self.display.grid(row=1, column=0, columnspan=4, pady=10)                                                #colspan ocupa 4 columnas y rowspan ocupa 1 fila
                 self.display.config(bg="darkgreen", bd=5, font=("Arial 20"), fg="lightgreen", justify="right", width=15)          # Se configura el cuadro de texto
