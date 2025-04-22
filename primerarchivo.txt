@@ -1,3 +1,13 @@
-Esta l nea ha sido modificada en memoria
-Esta línea la cambio por que quiero otra vez
-Pa ver cosas hay ke estar vivo
+A: Aliens: El regreso
+B: Batman, Blade Runner
+C: Cazadores del espacio perdido, Cazafantasmas, Los cazadores del arca perdida
+D: Desayuno con diamantes, Die Hard: La jungla de cristal
+E: E.T., el extraterrestre
+I: El imperio contraataca, Indiana Jones y los cazadores del arca perdida
+R: El resplandor, Regreso al futuro, RoboCop
+G: Gremlins, Gremlins 2: La nueva generación, Los Goonies
+K: Karate Kid
+H: La historia sin fin
+P: La princesa prometida, Platoon
+S: Scarface
+T: Top Gun
