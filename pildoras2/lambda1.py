@@ -24,3 +24,4 @@ Area_Triangulo = lambda base, altura: (base*altura)/2
 
 print(Area_Triangulo(5, 8))
 
+ 
