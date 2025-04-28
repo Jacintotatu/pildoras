@@ -34,7 +34,7 @@ Peliculas = [
 # Diccionario para agrupar las películas por la primera letra
 peliculas_ordenadas = defaultdict(list)
 
-for pelicula in sorted(Peliculas):  # Ordenamos alfabéticamente
+for pelicula in sorted(Peliculas):                                               # Ordenamos alfabéticamente
     # Expresión regular para capturar la primera letra ignorando artículos
     match = re.match(r"^(?:El |La |Los )?(.)", pelicula, re.IGNORECASE)          # Captura la primera letra después de "El", "La" o "Los" si están presentes 
     if match:                                                                    # Si hay una coincidencia, extraemos la letra
@@ -51,7 +51,7 @@ for letra, lista in peliculas_ordenadas.items():                                
 
     archivo_externo.write(orden)
 
-archivo_externo.close()# Imprimimos la letra y la lista de películas
+archivo_externo.close()
 
 
 
