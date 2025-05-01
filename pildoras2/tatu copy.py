@@ -8,6 +8,9 @@ import locale
 import openpyxl
 from openpyxl.styles import Font
 
+#anio_global = None
+#mes_global = None
+
 def solicitar_dias_festivos(mes):
     """Solicita los días festivos que el usuario desea omitir y los convierte en una lista de números."""
     festivos_input = input(f"Introduce los días festivos de {calendar.month_name[mes]} separados por comas (ej. 1, 3, 6): ")
@@ -55,10 +58,10 @@ def distribuir_cantidad(total, dias_laborables, dias_con_cifra, valores_posibles
 
     # Garantizar al menos 6 días con doble cantidad si hay menos de 20 días
     if dias_con_cifra < 20:
-        num_dias_dobles = max(6, len(cantidades_por_dia) // 3)
-        dias_disponibles = [d for d in list(cantidades_por_dia.keys())[:-1]]  # Excluimos el último día
-        dias_doble_cantidad = random.sample(dias_disponibles, min(num_dias_dobles, len(dias_disponibles)))
-        
+        num_dias_dobles = min(6, len(cantidades_por_dia))  # Aseguramos que al menos algunos días tengan doble cantidad
+        dias_disponibles = list(cantidades_por_dia.keys())  # Todos los días asignados
+        dias_doble_cantidad = random.sample(dias_disponibles, num_dias_dobles)  # Seleccionamos días aleatorios
+    
         for dia in dias_doble_cantidad:
             valores_disponibles = [v for v in valores_posibles if v <= min(restante - 50, 300)]
             if valores_disponibles:
@@ -114,7 +117,7 @@ def guardar_distribucion(cantidades_por_dia, anio, mes):
     fecha_inicio = f"{anio}-{mes:02d}-01"
     fecha_fin = f"{anio}-{mes:02d}-31"
     cursor.execute('DELETE FROM distribuciones WHERE fecha BETWEEN ? AND ?', 
-                  (fecha_inicio, fecha_fin))
+                (fecha_inicio, fecha_fin))
     
     # Insertar nuevos datos
     for dia, cantidades in sorted(cantidades_por_dia.items()):
@@ -158,65 +161,47 @@ def mostrar_historial():
 
 
 
-def exportar_a_xlsx():
-    locale.setlocale(locale.LC_TIME, 'es_ES.utf8')
-
-    conn = sqlite3.connect('distribuciones.db')
-    cursor = conn.cursor()
+def exportar_a_xlsx(anio, mes, cantidades_por_dia):
+    """Genera un archivo Excel con el nuevo orden de columnas."""
     archivo_xlsx = 'distribuciones.xlsx'
-
-    cursor.execute('SELECT fecha, cantidades, total_dia FROM distribuciones ORDER BY fecha')
-    datos = cursor.fetchall()
-
-    if not datos:
-        print("\nNo hay datos para exportar.")
-        conn.close()
-        return
-
-    # Crear o cargar libro de Excel
-    if os.path.exists(archivo_xlsx):
-        wb = openpyxl.load_workbook(archivo_xlsx)
-    else:
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Distribución"
-        ws.append(["Fecha", "Cantidades por día", "Total"])  # Encabezados en la primera fila
-
+    wb = openpyxl.Workbook()
     ws = wb.active
+    ws.title = "Distribución"
 
-    total_mes = 0
-    mes_actual = None
+    # Encabezados con el orden correcto
+    ws.append(["Factura Simplificada", "Cantidades por día", "Total Día", "", "Fecha"])
 
-    for row in datos:
-        fecha = datetime.strptime(row[0], '%Y-%m-%d')
+    total_mes = 0  # Variable para acumular el total del mes
+    numero_factura = 1  # Comienza en 1
 
-        if mes_actual and mes_actual != fecha.month:
-            ws.append([""])  # Fila vacía antes del total
-            ws.append([f"TOTAL {fecha.strftime('%B').upper()}", "", f"{total_mes} €"])  # Total con nombre del mes
-            ws.append([""])  # Fila vacía después del total
-            total_mes = 0
+    for dia, cantidades in cantidades_por_dia.items():
+        if isinstance(cantidades, int):  # Convertimos a lista si es un solo número
+            cantidades = [cantidades]
 
-        mes_actual = fecha.month
-        total_mes += row[2]
+        total_dia = sum(cantidades)  # Suma total de todas las cantidades en ese día
+        total_mes += total_dia  # Acumulamos para el total del mes
 
-        cantidades_lista = row[1].split(" ")  # Separar cada cantidad
+        # Agregar fila con el formato adecuado
+        ws.append([numero_factura, ", ".join(f"{c} €" for c in cantidades), f"{total_dia} €", "", f"{dia}/{mes}/{anio}"])
+        numero_factura += 1  # Incrementamos la numeración de factura
 
-        for i, cantidad in enumerate(cantidades_lista):
-            total_a_mostrar = f"{row[2]} €" if i == len(cantidades_lista) - 1 else ""  # Total solo en última fila
-            ws.append([fecha.strftime('%d/%m/%Y'), f"{cantidad} €", total_a_mostrar])
+    # Fila final con el total del mes en la columna "Total Día"
+    ws.append([""])
+    ws.append(["TOTAL MES", "", f"{total_mes} €", "", ""])
+    ws.append([""])  # Fila vacía después del total
 
-    if mes_actual:
-        ws.append([""])  # Fila vacía antes del total
-        ws.append([f"TOTAL {fecha.strftime('%B').upper()}", "", f"{total_mes} €"])
-        ws.append([""])  # Fila vacía después del total
-
-    # Aplicar formato: encabezados en negrita
+    # Aplicar formato: encabezados en negrita y ancho automático
     for cell in ws[1]:
         cell.font = Font(bold=True)
 
+    for column_cells in ws.columns:
+        valores = [len(str(cell.value)) for cell in column_cells if cell.value]  # Obtener los valores no vacíos
+        if valores:  # Verificar si la lista no está vacía
+            ws.column_dimensions[column_cells[0].column_letter].width = max(valores) + 2
+
     wb.save(archivo_xlsx)
-    conn.close()
-    print("\nArchivo Excel (.xlsx) generado correctamente.")
+    print("\nArchivo Excel (.xlsx) generado correctamente con el formato que querías.")
+
 
 
 
@@ -234,23 +219,48 @@ if __name__ == "__main__":
         opcion = input("\nElige una opción (1-4): ")
         
         if opcion == "1":
+            
+            global anio_global, mes_global  # Indicar que usaremos las variables globales
+            
+            anio_global=None
+            mes_global=None
+            
+
             inicializar_bd()
             anio = int(input("Introduce el año: "))
             mes = int(input("Introduce el mes (1-12): "))
             total = int(input("Introduce la cantidad total (€): "))
             dias_con_cifra = int(input("Introduce la cantidad de días que recibirán una cifra: "))
-    
-            dias_festivos = solicitar_dias_festivos(mes)  # Pedimos los días festivos
-            dias_laborables = obtener_dias_laborables(anio, mes, dias_festivos)  # Generamos lista sin festivos
+
+            dias_festivos = solicitar_dias_festivos(mes)
+            dias_laborables = obtener_dias_laborables(anio, mes, dias_festivos)
 
             valores_posibles = [x for x in range(50, 301, 10)]
-            distribuir_cantidad(total, dias_laborables, dias_con_cifra, valores_posibles)
+            cantidades_por_dia = distribuir_cantidad(total, dias_laborables, dias_con_cifra, valores_posibles)
+
+            # Guardar valores en las variables globales
+            
+            anio_global = anio
+            mes_global = mes
             
         elif opcion == "2":
             mostrar_historial()
             
         elif opcion == "3":
-            exportar_a_xlsx()
+            if anio_global is None or mes_global is None:
+                print("\nNo se ha generado ninguna distribución todavía.")
+            else:
+                conn = sqlite3.connect('distribuciones.db')
+                cursor = conn.cursor()
+                cursor.execute('SELECT fecha, cantidades, total_dia FROM distribuciones WHERE fecha LIKE ?', (f"{anio_global}-{mes_global:02d}%",))
+                datos = cursor.fetchall()
+                conn.close()
+
+                if not datos:
+                    print("\nNo hay datos para exportar.")
+                else:
+                    cantidades_por_dia = {datetime.strptime(row[0], '%Y-%m-%d').day: row[2] for row in datos}
+                    exportar_a_xlsx(anio_global, mes_global, cantidades_por_dia)
             
         elif opcion == "4":
             print("\n¡Hasta luego!")
