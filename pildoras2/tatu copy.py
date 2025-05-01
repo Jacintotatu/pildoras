@@ -8,15 +8,23 @@ import locale
 import openpyxl
 from openpyxl.styles import Font
 
+def solicitar_dias_festivos(mes):
+    """Solicita los días festivos que el usuario desea omitir y los convierte en una lista de números."""
+    festivos_input = input(f"Introduce los días festivos de {calendar.month_name[mes]} separados por comas (ej. 1, 3, 6): ")
+    try:
+        dias_festivos = [int(dia.strip()) for dia in festivos_input.split(",") if dia.strip().isdigit()]
+    except ValueError:
+        dias_festivos = []
+    return dias_festivos
 
-def obtener_dias_laborables(anio, mes):
-    """Devuelve una lista con los días laborables del mes (lunes a viernes)."""
+def obtener_dias_laborables(anio, mes, dias_festivos):
+    """Devuelve una lista con los días laborables del mes (lunes a viernes), excluyendo festivos."""
     dias_laborables = []
     num_dias = calendar.monthrange(anio, mes)[1]
     
     for dia in range(1, num_dias + 1):
         fecha = datetime(anio, mes, dia)
-        if fecha.weekday() < 5:  # 0=lunes, 1=martes, ..., 4=viernes
+        if fecha.weekday() < 5 and dia not in dias_festivos:  # Excluimos festivos
             dias_laborables.append(dia)
     
     return dias_laborables
@@ -231,8 +239,10 @@ if __name__ == "__main__":
             mes = int(input("Introduce el mes (1-12): "))
             total = int(input("Introduce la cantidad total (€): "))
             dias_con_cifra = int(input("Introduce la cantidad de días que recibirán una cifra: "))
-            
-            dias_laborables = obtener_dias_laborables(anio, mes)
+    
+            dias_festivos = solicitar_dias_festivos(mes)  # Pedimos los días festivos
+            dias_laborables = obtener_dias_laborables(anio, mes, dias_festivos)  # Generamos lista sin festivos
+
             valores_posibles = [x for x in range(50, 301, 10)]
             distribuir_cantidad(total, dias_laborables, dias_con_cifra, valores_posibles)
             
