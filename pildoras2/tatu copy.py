@@ -57,16 +57,21 @@ def distribuir_cantidad(total, dias_laborables, dias_con_cifra, valores_posibles
         restante -= cantidad_base
 
     # Garantizar al menos 6 días con doble cantidad si hay menos de 20 días
-    if dias_con_cifra < 20:
-        num_dias_dobles = min(6, len(cantidades_por_dia))  # Aseguramos que al menos algunos días tengan doble cantidad
-        dias_disponibles = list(cantidades_por_dia.keys())  # Todos los días asignados
-        dias_doble_cantidad = random.sample(dias_disponibles, num_dias_dobles)  # Seleccionamos días aleatorios
-    
+    if dias_con_cifra < 19:
+        num_dias_dobles = min(7, len(cantidades_por_dia))  # Se asegura que al menos 6 o 7 días tengan doble cantidad
+        dias_disponibles = list(cantidades_por_dia.keys())  
+        dias_doble_cantidad = random.sample(dias_disponibles, num_dias_dobles)  
+
         for dia in dias_doble_cantidad:
             valores_disponibles = [v for v in valores_posibles if v <= min(restante - 50, 300)]
             if valores_disponibles:
                 segunda_cantidad = random.choice(valores_disponibles)
+
+            # **Corrección:** Siempre convertir a lista antes de agregar el segundo valor
+                if isinstance(cantidades_por_dia[dia], int):  
+                    cantidades_por_dia[dia] = [cantidades_por_dia[dia]]  
                 cantidades_por_dia[dia].append(segunda_cantidad)
+
                 restante -= segunda_cantidad
 
     # Distribuir el restante en el último día
@@ -161,33 +166,41 @@ def mostrar_historial():
 
 
 
+import locale
+
 def exportar_a_xlsx(anio, mes, cantidades_por_dia):
-    """Genera un archivo Excel con el nuevo orden de columnas."""
+    """Genera un archivo Excel con el formato deseado."""
     archivo_xlsx = 'distribuciones.xlsx'
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Distribución"
 
-    # Encabezados con el orden correcto
+    # Asegurar nombres de meses en español
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    nombre_mes = calendar.month_name[mes].capitalize()
+
+    # Encabezados en el orden correcto
     ws.append(["Factura Simplificada", "Cantidades por día", "Total Día", "", "Fecha"])
 
     total_mes = 0  # Variable para acumular el total del mes
     numero_factura = 1  # Comienza en 1
 
     for dia, cantidades in cantidades_por_dia.items():
-        if isinstance(cantidades, int):  # Convertimos a lista si es un solo número
-            cantidades = [cantidades]
+        if isinstance(cantidades, int):  
+            cantidades = [cantidades]  
 
-        total_dia = sum(cantidades)  # Suma total de todas las cantidades en ese día
-        total_mes += total_dia  # Acumulamos para el total del mes
+            total_dia = sum(cantidades)  
+            total_mes += total_dia  
 
-        # Agregar fila con el formato adecuado
-        ws.append([numero_factura, ", ".join(f"{c} €" for c in cantidades), f"{total_dia} €", "", f"{dia}/{mes}/{anio}"])
-        numero_factura += 1  # Incrementamos la numeración de factura
+    # **Corrección:** Asegurar que cada cantidad aparezca correctamente separada por espacio
+            cantidad_formateada = " ".join(f"{c} €" for c in cantidades)  
 
-    # Fila final con el total del mes en la columna "Total Día"
+            ws.append([numero_factura, cantidad_formateada, f"{total_dia} €", "", f"{dia}/{mes}/{anio}"])
+            numero_factura += 1  
+
+    # Última fila con el total del mes en la columna "Total Día"
     ws.append([""])
-    ws.append(["TOTAL MES", "", f"{total_mes} €", "", ""])
+    ws.append([f"TOTAL {nombre_mes}", "", f"{total_mes} €", "", ""])
     ws.append([""])  # Fila vacía después del total
 
     # Aplicar formato: encabezados en negrita y ancho automático
@@ -200,12 +213,7 @@ def exportar_a_xlsx(anio, mes, cantidades_por_dia):
             ws.column_dimensions[column_cells[0].column_letter].width = max(valores) + 2
 
     wb.save(archivo_xlsx)
-    print("\nArchivo Excel (.xlsx) generado correctamente con el formato que querías.")
-
-
-
-
-
+    print(f"\nArchivo Excel (.xlsx) generado correctamente con formato \"TOTAL {nombre_mes}\" y días con doble cantidad.")
 
 
 if __name__ == "__main__":

@@ -82,6 +82,7 @@ def distribuir_cantidad(total, dias_laborables, dias_con_cifra, valores_posibles
 
     # Guardar en la base de datos
     guardar_distribucion(cantidades_por_dia, anio, mes)
+    return cantidades_por_dia  # Asegura que los datos se devuelvan correctamente
 
 def inicializar_bd():
     conn = sqlite3.connect('distribuciones.db')
@@ -148,67 +149,55 @@ def mostrar_historial():
     conn.close()
 
 
-
-
-def exportar_a_xlsx():
-    locale.setlocale(locale.LC_TIME, 'es_ES.utf8')
-
-    conn = sqlite3.connect('distribuciones.db')
-    cursor = conn.cursor()
+def exportar_a_xlsx(anio, mes, cantidades_por_dia):
+    """Genera un archivo Excel con el formato deseado."""
     archivo_xlsx = 'distribuciones.xlsx'
-
-    cursor.execute('SELECT fecha, cantidades, total_dia FROM distribuciones ORDER BY fecha')
-    datos = cursor.fetchall()
-
-    if not datos:
-        print("\nNo hay datos para exportar.")
-        conn.close()
-        return
-
-    # Crear o cargar libro de Excel
-    if os.path.exists(archivo_xlsx):
-        wb = openpyxl.load_workbook(archivo_xlsx)
-    else:
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Distribución"
-        ws.append(["Fecha", "Cantidades por día", "Total"])  # Encabezados en la primera fila
-
+    wb = openpyxl.Workbook()
     ws = wb.active
+    ws.title = "Distribución"
 
-    total_mes = 0
-    mes_actual = None
+    # Asegurar nombres de meses en español
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    nombre_mes = calendar.month_name[mes].capitalize()
 
-    for row in datos:
-        fecha = datetime.strptime(row[0], '%Y-%m-%d')
+    # Encabezados en el orden correcto
+    ws.append(["Factura Simplificada", "Cantidades por día", "Total Día", "", "Fecha"])
 
-        if mes_actual and mes_actual != fecha.month:
-            ws.append([""])  # Fila vacía antes del total
-            ws.append([f"TOTAL {fecha.strftime('%B').upper()}", "", f"{total_mes} €"])  # Total con nombre del mes
-            ws.append([""])  # Fila vacía después del total
-            total_mes = 0
+    total_mes = 0  # Variable para acumular el total del mes
+    numero_factura = 1  # Comienza en 1
 
-        mes_actual = fecha.month
-        total_mes += row[2]
+    for dia in sorted(cantidades_por_dia.keys()):  # Ordenamos los días antes de recorrerlos
+        cantidades = cantidades_por_dia[dia]
 
-        cantidades_lista = row[1].split(" ")  # Separar cada cantidad
+        if isinstance(cantidades, int):  
+            cantidades = [cantidades]  # Convertimos a lista si solo hay un número
 
-        for i, cantidad in enumerate(cantidades_lista):
-            total_a_mostrar = f"{row[2]} €" if i == len(cantidades_lista) - 1 else ""  # Total solo en última fila
-            ws.append([fecha.strftime('%d/%m/%Y'), f"{cantidad} €", total_a_mostrar])
+    # ✅ Corrección: Inicializar `total_dia` antes de usarlo
+        total_dia = sum(cantidades) if cantidades else 0
+        total_mes += total_dia  # Acumulamos para el total del mes
 
-    if mes_actual:
-        ws.append([""])  # Fila vacía antes del total
-        ws.append([f"TOTAL {fecha.strftime('%B').upper()}", "", f"{total_mes} €"])
-        ws.append([""])  # Fila vacía después del total
+    # Generar filas separadas para cada cantidad, asegurando que el total solo aparezca en la última
+        for i, cantidad in enumerate(cantidades):
+            total_dia_str = f"{total_dia} €" if i == len(cantidades) - 1 else ""  # Solo la última fila muestra el total
+            ws.append([numero_factura, f"{cantidad} €", total_dia_str, "", f"{dia}/{mes}/{anio}"])
+            numero_factura += 1  # Incrementamos la numeración de factura
 
-    # Aplicar formato: encabezados en negrita
+    # Última fila con el total del mes en la columna "Total Día"
+    ws.append([""])
+    ws.append([f"TOTAL {nombre_mes}", "", f"{total_mes} €", "", ""])
+    ws.append([""])  # Fila vacía después del total
+
+    # Aplicar formato: encabezados en negrita y ancho automático
     for cell in ws[1]:
         cell.font = Font(bold=True)
 
+    for column_cells in ws.columns:
+        valores = [len(str(cell.value)) for cell in column_cells if cell.value]  # Obtener los valores no vacíos
+        if valores:  # Verificar si la lista no está vacía
+            ws.column_dimensions[column_cells[0].column_letter].width = max(valores) + 2
+
     wb.save(archivo_xlsx)
-    conn.close()
-    print("\nArchivo Excel (.xlsx) generado correctamente.")
+    print(f"\nArchivo Excel (.xlsx) generado correctamente con formato \"TOTAL {nombre_mes}\" y días con doble cantidad separados.")
 
 
 
@@ -231,16 +220,18 @@ if __name__ == "__main__":
             mes = int(input("Introduce el mes (1-12): "))
             total = int(input("Introduce la cantidad total (€): "))
             dias_con_cifra = int(input("Introduce la cantidad de días que recibirán una cifra: "))
-            
+
             dias_laborables = obtener_dias_laborables(anio, mes)
             valores_posibles = [x for x in range(50, 301, 10)]
-            distribuir_cantidad(total, dias_laborables, dias_con_cifra, valores_posibles)
+
+    # ¡Aquí aseguramos que `cantidades_por_dia` se define correctamente!
+            cantidades_por_dia = distribuir_cantidad(total, dias_laborables, dias_con_cifra, valores_posibles)
             
         elif opcion == "2":
             mostrar_historial()
             
         elif opcion == "3":
-            exportar_a_xlsx()
+            exportar_a_xlsx(anio, mes, cantidades_por_dia)
             
         elif opcion == "4":
             print("\n¡Hasta luego!")
