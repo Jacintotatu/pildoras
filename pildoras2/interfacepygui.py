@@ -153,7 +153,7 @@ def callback(sender, app_data, user_data):                                      
     try:
         año = int(dpg.get_value("año"))
         mes = int(dpg.get_value("mes"))
-        cantidad_total = int(dpg.get_value("cantidad_total"))
+        cantidad_total = int(dpg.get_value("cantidad_total"))    # cambiar a float
         dias_reciben_cifras = int(dpg.get_value("dias_reciben_cifras"))
         festivos_input = dpg.get_value("festivos")
 
