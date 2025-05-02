@@ -24,19 +24,19 @@ def generar_fechas_laborables(año, mes, dias_reciben_cifras, dias_fiesta):
     fechas = []
     festivos = []
 
-    print(f"Introduce las fechas de los {dias_fiesta} días de fiesta (formato DD/MM/YYYY):")
+    print(f"Introduce los números de los {dias_fiesta} días de fiesta (solo el número del día):")
     for i in range(dias_fiesta):
         while True:
             try:
-                fecha_str = input(f"Día de fiesta {i+1}: ")
-                fecha_festivo = datetime.strptime(fecha_str, "%d/%m/%Y").date()
-                if fecha_festivo.month != mes or fecha_festivo.year != año:
-                    print("La fecha debe pertenecer al mes y año especificados. Vuelve a intentarlo.")
+                dia_festivo = int(input(f"Día de fiesta {i+1}: "))
+                if dia_festivo < 1 or dia_festivo > calendar.monthrange(año, mes)[1]:
+                    print(f"El día debe estar entre 1 y {calendar.monthrange(año, mes)[1]}. Vuelve a intentarlo.")
                     continue
+                fecha_festivo = date(año, mes, dia_festivo)
                 festivos.append(fecha_festivo)
                 break
             except ValueError:
-                print("Formato incorrecto. Por favor introduce la fecha en formato DD/MM/YYYY")
+                print("Entrada inválida. Por favor introduce un número válido para el día.")
 
     # Generar todas las fechas del mes
     _, num_dias = calendar.monthrange(año, mes)
