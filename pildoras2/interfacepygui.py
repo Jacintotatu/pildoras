@@ -1,5 +1,6 @@
 import dearpygui.dearpygui as dpg
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Alignment
 from datetime import date
 import calendar
 import random
@@ -8,7 +9,7 @@ import os
 def nombre_mes_en_espanol(mes):
     """Devuelve el nombre del mes en español."""
     meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
     return meses[mes - 1]
 
 def generar_fechas_laborables(año, mes, dias_reciben_cifras, dias_fiesta, festivos):
@@ -80,29 +81,52 @@ def crear_o_actualizar_excel(datos, año, mes, cantidad_total):
     nombre_archivo = f"Facturacion_{año}.xlsx"
     mes_nombre = nombre_mes_en_espanol(mes)
 
-    if not os.path.exists(nombre_archivo):
+    # Obtener el último número de factura
+    ultimo_num_factura = 0
+    if os.path.exists(nombre_archivo):
+        wb = load_workbook(nombre_archivo)
+        # Buscar el último número de factura en todas las hojas anteriores
+        for sheet_name in wb.sheetnames:
+            ws = wb[sheet_name]
+            # Buscar en la columna A el último número no vacío
+            for cell in ws['A']:
+                if cell.value and isinstance(cell.value, int):
+                    ultimo_num_factura = max(ultimo_num_factura, cell.value)
+    else:
         wb = Workbook()
         ws = wb.active
         ws.title = mes_nombre
-    else:
-        from openpyxl import load_workbook
-        wb = load_workbook(nombre_archivo)
-        if mes_nombre in wb.sheetnames:
-            del wb[mes_nombre]
-            ws = wb.create_sheet(mes_nombre)
-        else:
-            ws = wb.create_sheet(mes_nombre)
 
+    # Si la hoja del mes existe, la reemplazamos
+    if mes_nombre in wb.sheetnames:
+        del wb[mes_nombre]
+        ws = wb.create_sheet(mes_nombre)
+    elif not os.path.exists(nombre_archivo):
+        ws = wb.active
+        ws.title = mes_nombre
+    else:
+        ws = wb.create_sheet(mes_nombre)
+
+    # Configurar encabezados y alineación
     ws['A1'] = "FACTURA SIMPLIFICADA"
     ws['B1'] = "CANTIDADES DIARIAS"
     ws['C1'] = "TOTAL"
     ws['D1'] = ""
     ws['E1'] = "FECHA"
 
+    # Alinear la columna A a la izquierda
+    alineacion_izquierda = Alignment(horizontal='left')
+    ws.column_dimensions['A'].alignment = alineacion_izquierda
+
+    # Actualizar números de factura
     fila = 2
     for registro in datos:
         if registro['factura_num'] is not None:
-            ws[f'A{fila}'] = registro['factura_num']
+            # Incrementar el número de factura continuando la secuencia
+            ultimo_num_factura += 1
+            celda = ws[f'A{fila}']
+            celda.value = ultimo_num_factura
+            celda.alignment = alineacion_izquierda  # Alinear cada celda individualmente
         if registro['cantidad'] is not None:
             ws[f'B{fila}'] = f"{registro['cantidad']} €"
         if registro['total'] is not None:
@@ -111,23 +135,25 @@ def crear_o_actualizar_excel(datos, año, mes, cantidad_total):
             ws[f'E{fila}'] = registro['fecha']
         fila += 1
 
+    # Agregar total mensual
     fila += 2
     ws[f'B{fila}'] = f"Total {mes_nombre}"
     ws[f'C{fila}'] = f"{int(cantidad_total)} €"
 
+    # Ajustar ancho de columnas
     for col in ['A', 'B', 'C', 'D', 'E']:
         ws.column_dimensions[col].width = 20
 
     wb.save(nombre_archivo)
-    print(f"\nDatos guardados en {nombre_archivo}, hoja '{mes_nombre}'.")
+    print(f"\n👍🏼 Datos guardados en {nombre_archivo}, hoja '{mes_nombre}'.")
     return nombre_archivo
 
-def callback(sender, app_data, user_data):
+def callback(sender, app_data, user_data):                                      # 
     """Callback para manejar el evento del botón."""
     try:
         año = int(dpg.get_value("año"))
         mes = int(dpg.get_value("mes"))
-        cantidad_total = float(dpg.get_value("cantidad_total"))
+        cantidad_total = int(dpg.get_value("cantidad_total"))
         dias_reciben_cifras = int(dpg.get_value("dias_reciben_cifras"))
         festivos_input = dpg.get_value("festivos")
 
@@ -145,7 +171,7 @@ def callback(sender, app_data, user_data):
         datos = distribuir_cantidad(cantidad_total, fechas_seleccionadas)
         archivo = crear_o_actualizar_excel(datos, año, mes, cantidad_total)
 
-        dpg.set_value("output", f"✅ Datos guardados: {archivo}")
+        dpg.set_value("output", f"👍🏼 Datos guardados: {archivo}")
     except ValueError as e:
         dpg.set_value("output", f"❌ Error: {str(e)}")
     except Exception as e:
