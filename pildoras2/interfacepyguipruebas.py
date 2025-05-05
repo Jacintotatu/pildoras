@@ -53,25 +53,39 @@ def distribuir_cantidad(cantidad_total, fechas_seleccionadas):
         cantidad2 = round(random.randint(50, min(350 - cantidad1, 350)) / 10) * 10
         cantidades_diarias.append([int(cantidad1), int(cantidad2)])
 
+    # Asignar número de factura a cada registro
     factura_num = 1
     for i, fecha in enumerate(fechas_seleccionadas):
         facturas = []
-        for j, cantidad in enumerate(cantidades_diarias[i]):
-            if j == 0:
-                facturas.append({
-                    'factura_num': factura_num,
-                    'cantidad': cantidad,
-                    'total': None if len(cantidades_diarias[i]) > 1 else sum(cantidades_diarias[i]),
-                    'fecha': fecha.strftime("%d/%m/%Y")
-                })
-                factura_num += 1
-            else:
-                facturas.append({
-                    'factura_num': None,
-                    'cantidad': cantidad,
-                    'total': sum(cantidades_diarias[i]),
-                    'fecha': fecha.strftime("%d/%m/%Y")
-                })
+        cantidades = cantidades_diarias[i]
+        
+        if len(cantidades) == 1:
+            # Si solo hay una cantidad para este día
+            facturas.append({
+                'factura_num': factura_num,
+                'cantidad': cantidades[0],
+                'total': cantidades[0],  # Mostrar total en la única fila
+                'fecha': fecha.strftime("%d/%m/%Y")
+            })
+            factura_num += 1
+        else:
+            # Si hay dos cantidades para este día
+            facturas.append({
+                'factura_num': factura_num,
+                'cantidad': cantidades[0],
+                'total': None,  # Primera fila sin total
+                'fecha': fecha.strftime("%d/%m/%Y")
+            })
+            factura_num += 1
+            
+            facturas.append({
+                'factura_num': factura_num,
+                'cantidad': cantidades[1],
+                'total': sum(cantidades),  # Total solo en la segunda fila
+                'fecha': fecha.strftime("%d/%m/%Y")
+            })
+            factura_num += 1
+            
         datos.extend(facturas)
 
     return datos
@@ -121,12 +135,12 @@ def crear_o_actualizar_excel(datos, año, mes, cantidad_total):
     # Actualizar números de factura
     fila = 2
     for registro in datos:
-        if registro['factura_num'] is not None:
-            # Incrementar el número de factura continuando la secuencia
-            ultimo_num_factura += 1
-            celda = ws[f'A{fila}']
-            celda.value = ultimo_num_factura
-            celda.alignment = alineacion_izquierda  # Alinear cada celda individualmente
+        # Incrementar el número de factura en cada fila
+        ultimo_num_factura += 1
+        celda = ws[f'A{fila}']
+        celda.value = ultimo_num_factura
+        celda.alignment = alineacion_izquierda
+
         if registro['cantidad'] is not None:
             ws[f'B{fila}'] = f"{registro['cantidad']} €"
         if registro['total'] is not None:
