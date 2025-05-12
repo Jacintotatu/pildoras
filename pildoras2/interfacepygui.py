@@ -120,13 +120,13 @@ def crear_o_actualizar_excel(datos, año, mes, cantidad_total):
 
     # Actualizar números de factura
     fila = 2
+    numero_factura = ultimo_num_factura
     for registro in datos:
-        if registro['factura_num'] is not None:
-            # Incrementar el número de factura continuando la secuencia
-            ultimo_num_factura += 1
-            celda = ws[f'A{fila}']
-            celda.value = ultimo_num_factura
-            celda.alignment = alineacion_izquierda  # Alinear cada celda individualmente
+        # Asignar SIEMPRE un número correlativo, sin repetir
+        numero_factura += 1
+        celda = ws[f'A{fila}']
+        celda.value = numero_factura
+        celda.alignment = alineacion_izquierda
         if registro['cantidad'] is not None:
             ws[f'B{fila}'] = f"{registro['cantidad']} €"
         if registro['total'] is not None:

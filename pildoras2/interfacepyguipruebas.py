@@ -6,6 +6,72 @@ import calendar
 import random
 import os 
 
+# Listas de nombres y apellidos
+NOMBRES_ESPANOLES = [
+    "Antonio", "José", "Manuel", "Francisco", "David", "Juan", "José Antonio", "Daniel", 
+    "Carlos", "Jesús", "Alejandro", "Miguel", "José Luis", "Francisco Javier", "Rafael",
+    "María", "Carmen", "Ana", "Isabel", "Laura", "Cristina", "Marta", "Elena", "Sara",
+    "Paula", "Sandra", "Raquel", "Lucía", "Beatriz", "Alba", "Diego", "Pablo", "Luis",
+    "Javier", "Sergio", "Jorge", "Alberto", "Fernando", "Ángel", "Mario", "Marcos",
+    "José Manuel", "Miguel Ángel", "Pedro", "Andrés", "Ramón", "Raúl", "Vicente",
+    "Sofía", "Patricia", "Nuria", "Silvia", "Rosa", "Marina", "Alicia", "Andrea",
+    "Rocío", "Julia", "Inés", "Natalia", "Victoria", "Pilar", "Irene", "Carla",
+    "Eduardo", "Rubén", "Víctor", "Roberto", "Jaime", "Salvador", "Ricardo", "Felipe",
+    "Teresa", "Dolores", "Mercedes", "Manuela", "Rosario", "Antonia", "Carolina",
+    "Josefa", "Gloria", "Begoña", "Yolanda", "Catalina", "Lorena", "Eva", "Esther",
+    "Gabriel", "Ignacio", "Jordi", "Gonzalo", "Emilio", "Xavier", "Joan", "Marc"
+]
+
+NOMBRES_INGLESES = [
+    "John", "William", "James", "George", "Michael", 
+    "Elizabeth", "Sarah", "Margaret", "Emma", "Victoria"
+]
+
+APELLIDOS_ESPANOLES = [
+    "García", "González", "Rodríguez", "Fernández", "López", "Martínez", "Sánchez", 
+    "Pérez", "Gómez", "Martín", "Jiménez", "Ruiz", "Hernández", "Díaz", "Moreno",
+    "Muñoz", "Álvarez", "Romero", "Alonso", "Gutiérrez", "Navarro", "Torres", 
+    "Domínguez", "Vázquez", "Ramos", "Gil", "Ramírez", "Serrano", "Blanco", "Molina",
+    "Morales", "Suárez", "Ortega", "Delgado", "Castro", "Ortiz", "Rubio", "Marín",
+    "Sanz", "Núñez", "Iglesias", "Medina", "Garrido", "Cortés", "Santos", "Castillo",
+    "Lozano", "Guerrero", "Cano", "Prieto", "Méndez", "Cruz", "Calvo", "Gallego",
+    "Vidal", "León", "Márquez", "Herrera", "Peña", "Flores", "Cabrera", "Campos",
+    "Vega", "Fuentes", "Carrasco", "Díez", "Caballero", "Reyes", "Nieto", "Aguilar",
+    "Pascual", "Santana", "Herrero", "Lorenzo", "Montero", "Hidalgo", "Giménez",
+    "Ibáñez", "Ferrer", "Durán", "Santiago", "Benítez", "Mora", "Vicente", "Vargas",
+    "Arias", "Carmona", "Crespo", "Román", "Pastor", "Soto", "Sáez", "Velasco",
+    "Moya", "Soler", "Parra", "Esteban", "Bravo", "Gallardo", "Rojas", "Pardo",
+    "Merino", "Franco", "Espinosa", "Izquierdo", "Lara", "Rivas", "Silva", "Rivera",
+    "Casado", "Arroyo", "Redondo", "Camacho", "Rey", "Vera", "Otero", "Luque",
+    "Gálvez", "Segura", "Heredia", "Luna", "Márquez", "Mendoza", "Abad", "Ferrer",
+    "Quintana", "Salazar", "Rincón", "Bernal", "Vila", "Escobar", "Robles", "Santamaría",
+    "Palacios", "Benito", "Marcos", "Bautista", "Garrido", "Real", "Soria", "Roldan",
+    "Valencia", "Menéndez", "Polo", "Aguirre", "Reina", "Paz", "Salas", "Machado",
+    "Rico", "Esteban", "Montes", "Sierra", "Guerra", "Varela", "Miranda", "Guillén",
+    "Roldán", "Escudero", "Pacheco", "Zamora", "Jurado", "Mateo", "Galán", "Ribera",
+    "Tomás", "Salvador", "Bermejo", "Águilar", "Pereira", "Valle", "Moro", "Rosa",
+    "Mesa", "Pozo", "Gracia", "Trujillo", "Morán", "Hurtado", "Montes", "Serra",
+    "Rueda", "Plaza", "Vela", "Ayala", "Bueno", "Montes", "Serra", "Rovira", "Costa"
+]
+
+APELLIDOS_INGLESES = [
+    "Smith", "Jones", "Williams", "Brown", "Taylor",
+    "Davies", "Wilson", "Evans", "Johnson", "Roberts"
+]
+
+def generar_nombre_aleatorio():
+    """Genera un nombre aleatorio con apellidos."""
+    # Decidir si será un nombre español (90%) o inglés (10%)
+    if random.random() < 0.9:  # 90% probabilidad de nombre español
+        nombre = random.choice(NOMBRES_ESPANOLES)
+        apellido1 = random.choice(APELLIDOS_ESPANOLES)
+        apellido2 = random.choice(APELLIDOS_ESPANOLES)
+        return f"{nombre} {apellido1} {apellido2}"
+    else:  # 10% probabilidad de nombre inglés
+        nombre = random.choice(NOMBRES_INGLESES)
+        apellido = random.choice(APELLIDOS_INGLESES)
+        return f"{nombre} {apellido}"
+
 def nombre_mes_en_espanol(mes):
     """Devuelve el nombre del mes en español."""
     meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -40,20 +106,31 @@ def generar_fechas_laborables(año, mes, dias_reciben_cifras, dias_fiesta, festi
 def distribuir_cantidad(cantidad_total, fechas_seleccionadas):
     """Distribuye la cantidad total entre las fechas seleccionadas."""
     datos = []
-    dias_con_dos_cantidades = random.randint(4, 8) if len(fechas_seleccionadas) < 19 else 0
-    dias_una_cantidad = len(fechas_seleccionadas) - dias_con_dos_cantidades
+    
+    # Determinar cuántos días tendrán dos cifras (entre 4 y 8)
+    dias_con_dos_cantidades = random.randint(4, 8)
+    
+    # Asegurarse de que no exceda el total de días disponibles
+    dias_con_dos_cantidades = min(dias_con_dos_cantidades, len(fechas_seleccionadas))
+    
+    # Seleccionar aleatoriamente qué días tendrán dos cifras
+    dias_doble_cifra = random.sample(range(len(fechas_seleccionadas)), dias_con_dos_cantidades)
+    
     cantidades_diarias = []
+    
+    # Generar cantidades para cada día
+    for i in range(len(fechas_seleccionadas)):
+        if i in dias_doble_cifra:
+            # Día con dos cantidades
+            cantidad1 = round(random.randint(50, 300) / 10) * 10
+            cantidad2 = round(random.randint(50, min(350 - cantidad1, 350)) / 10) * 10
+            cantidades_diarias.append([int(cantidad1), int(cantidad2)])
+        else:
+            # Día con una cantidad
+            cantidad = round(random.randint(50, min(350, int(cantidad_total))) / 10) * 10
+            cantidades_diarias.append([int(cantidad)])
 
-    for _ in range(dias_una_cantidad):
-        cantidad = round(random.randint(50, min(350, int(cantidad_total))) / 10) * 10
-        cantidades_diarias.append([int(cantidad)])
-
-    for _ in range(dias_con_dos_cantidades):
-        cantidad1 = round(random.randint(50, 300) / 10) * 10
-        cantidad2 = round(random.randint(50, min(350 - cantidad1, 350)) / 10) * 10
-        cantidades_diarias.append([int(cantidad1), int(cantidad2)])
-
-    # Asignar número de factura a cada registro
+    # Asociar las cantidades con las fechas
     factura_num = 1
     for i, fecha in enumerate(fechas_seleccionadas):
         facturas = []
@@ -123,51 +200,56 @@ def crear_o_actualizar_excel(datos, año, mes, cantidad_total):
 
     # Configurar encabezados y alineación
     ws['A1'] = "FACTURA SIMPLIFICADA"
-    ws['B1'] = "CANTIDADES DIARIAS"
-    ws['C1'] = "TOTAL"
-    ws['D1'] = ""
-    ws['E1'] = "FECHA"
+    ws['B1'] = "CLIENTES"  # Nueva columna
+    ws['C1'] = "CANTIDADES DIARIAS"
+    ws['D1'] = "TOTAL"
+    ws['E1'] = ""
+    ws['F1'] = "FECHA"
 
     # Alinear la columna A a la izquierda
     alineacion_izquierda = Alignment(horizontal='left')
     ws.column_dimensions['A'].alignment = alineacion_izquierda
 
-    # Actualizar números de factura
+    # Actualizar números de factura y añadir clientes
     fila = 2
+    numero_factura = ultimo_num_factura
     for registro in datos:
-        # Incrementar el número de factura en cada fila
-        ultimo_num_factura += 1
+        # Asignar SIEMPRE un número correlativo, sin repetir
+        numero_factura += 1
         celda = ws[f'A{fila}']
-        celda.value = ultimo_num_factura
+        celda.value = numero_factura
         celda.alignment = alineacion_izquierda
-
+        
+        # Añadir nombre de cliente
+        ws[f'B{fila}'] = generar_nombre_aleatorio()
+        
         if registro['cantidad'] is not None:
-            ws[f'B{fila}'] = f"{registro['cantidad']} €"
+            ws[f'C{fila}'] = f"{registro['cantidad']} €"
         if registro['total'] is not None:
-            ws[f'C{fila}'] = f"{registro['total']} €"
+            ws[f'D{fila}'] = f"{registro['total']} €"
         if registro['fecha'] is not None:
-            ws[f'E{fila}'] = registro['fecha']
+            ws[f'F{fila}'] = registro['fecha']
         fila += 1
 
     # Agregar total mensual
     fila += 2
-    ws[f'B{fila}'] = f"Total {mes_nombre}"
-    ws[f'C{fila}'] = f"{int(cantidad_total)} €"
+    ws[f'C{fila}'] = f"Total {mes_nombre}"
+    ws[f'D{fila}'] = f"{int(cantidad_total)} €"
 
-    # Ajustar ancho de columnas
-    for col in ['A', 'B', 'C', 'D', 'E']:
-        ws.column_dimensions[col].width = 20
+    # Ajustar ancho de columnas (actualizado para incluir la nueva columna)
+    for col in ['A', 'B', 'C', 'D', 'E', 'F']:
+        ws.column_dimensions[col].width = 30 if col == 'B' else 20  # Columna B más ancha para los nombres
 
     wb.save(nombre_archivo)
     print(f"\n👍🏼 Datos guardados en {nombre_archivo}, hoja '{mes_nombre}'.")
     return nombre_archivo
 
-def callback(sender, app_data, user_data):                                      # 
+def callback(sender, app_data, user_data):
     """Callback para manejar el evento del botón."""
     try:
         año = int(dpg.get_value("año"))
         mes = int(dpg.get_value("mes"))
-        cantidad_total = int(dpg.get_value("cantidad_total"))    # cambiar a float
+        cantidad_total = float(dpg.get_value("cantidad_total"))
         dias_reciben_cifras = int(dpg.get_value("dias_reciben_cifras"))
         festivos_input = dpg.get_value("festivos")
 
